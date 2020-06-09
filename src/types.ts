@@ -7,7 +7,7 @@ export type SurveyComponentItem = {
     value : string | number
 }
 export type SurveyComponentRef = React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-
+export type SurveyComponentRefObject = React.MutableRefObject<{ [ id : string ] : SurveyComponentRef }>;
 export type SurveyComponent = ISurveyComponent | IChoicedSurveyComponent | SurveyComponentGroup
 export type SurveyComponentGroup = Array<ISurveyComponent | IChoicedSurveyComponent>
 
