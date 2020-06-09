@@ -1,13 +1,13 @@
 import React from "react";
 
 import { ISurveyComponent } from "./interfaces";
-import { SurveyComponentType, SurveyComponentRef } from "./types";
+import { SurveyComponentType, SurveyComponentRef, SurveyComponentRefObject } from "./types";
 
 type Props = {
     component : ISurveyComponent;
     value : string;
     onUpdate : React.ChangeEventHandler;
-    forwardedRef : SurveyComponentRef;
+    forwardedRef : SurveyComponentRefObject;
 }
 
 const SurveyorFactory = ({ component, onUpdate, value, forwardedRef } : Props) => {
@@ -18,15 +18,25 @@ const SurveyorFactory = ({ component, onUpdate, value, forwardedRef } : Props) =
      */
     switch ( type ) {
         case "text":
-            return <input ref={forwardedRef as React.MutableRefObject<HTMLInputElement>} type="text" value={value} onChange={onUpdate}/>
+            return <input
+                id={component.id}
+                ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLInputElement> | null} type="text" value={value} onChange={onUpdate}/>
         case "number":
-            return <input ref={forwardedRef as React.MutableRefObject<HTMLInputElement>} type="number" value={value}/>
+            return <input
+                id={component.id}
+                ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLInputElement> | null} type="number" value={value}/>
         case "textbox":
-            return <textarea ref={forwardedRef as React.MutableRefObject<HTMLTextAreaElement>}>{value}</textarea>
+            return <textarea
+                id={component.id}
+                ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLTextAreaElement> | null}>{value}</textarea>
         case "select":
-            return <select ref={forwardedRef as React.MutableRefObject<HTMLSelectElement>}>{value}</select>
+            return <select
+                id={component.id}
+                ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLSelectElement> | null}>{value}</select>
         case "radio":
-            return <input ref={forwardedRef as React.MutableRefObject<HTMLInputElement>} type="radio"/>
+            return <input
+                id={component.id}
+                ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLInputElement> | null} type="radio"/>
         default:
             throw new Error(`Error: Unknown Component Type ${component.type}`)
     }
