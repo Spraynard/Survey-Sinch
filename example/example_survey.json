@@ -1,0 +1,21 @@
+[
+    { "type" : "text", "label" : "Please Enter Your Name" },
+    { "type" : "text", "label" : "Please Enter Your Address" },
+    { "type" : "text", "label" : "Please Enter Your Phone Number" },
+    { "type" : "number", "label" : "Please enter your phone number again" },
+    [ 
+        {
+            "label" : "What is your favorite ice cream?",
+            "type" : "radio",
+            "items" : [
+                {"label" : "Chocolate", "value" : "chocolate"},
+                {"label" : "Vanilla", "value" : "vanilla"},
+                {"label" : "Strawberry", "value" : "strawberry"}
+            ]
+        },
+        {
+            "type": "text",
+            "label": "Do you think that ice cream is good?"
+        }
+    ]
+]
