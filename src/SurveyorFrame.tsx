@@ -1,11 +1,15 @@
 import React from 'react';
+import styled from "styled-components";
 
 type Props = {
     children : React.ReactNode;
-    display : boolean;
+    showFrame : boolean;
 }
 
-const SurveyorFrame = ({ children, display } : Props) => 
-    (display) ? <div className="surveyor-frame">{children}</div> : null;
+const Frame = styled.div`
+    display: ${ props => props.showFrame ? "block" : "none" }
+`;
 
-export { SurveyorFrame }
+const SurveyorFrame = ({ children, showFrame } : Props) => <Frame showFrame={showFrame}>{children}</Frame>
+
+export { SurveyorFrame };
