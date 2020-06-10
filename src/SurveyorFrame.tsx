@@ -3,13 +3,13 @@ import styled from "styled-components";
 
 type Props = {
     children : React.ReactNode;
-    showFrame : boolean;
+    show_frame : boolean;
 }
 
 const Frame = styled.div`
-    display: ${ props => props.showFrame ? "block" : "none" }
+    display: ${ props => props.show_frame ? "block" : "none" }
 `;
 
-const SurveyorFrame = ({ children, showFrame } : Props) => <Frame showFrame={showFrame}>{children}</Frame>
+const SurveyorFrame = ({ children, show_frame } : Props) => <Frame show_frame={show_frame}>{children}</Frame>
 
 export { SurveyorFrame };
