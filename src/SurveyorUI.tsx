@@ -4,7 +4,7 @@ import { SurveyorGenerator } from "./SurveyorGenerator";
 import { SurveyorSurvey, SurveyComponentState, SurveyComponentRef, SurveyComponentRefObject } from "./types";
 import styled from "styled-components";
 import { SurveyorNextButton, SurveyorPreviousButton, SurveyorSubmitButton } from './components/SurveyorButton';
-import { first } from './functions';
+import { first, calculateSurveyProgress } from './functions';
 import { gotoNextQuestion, gotoPreviousQuestion } from "./event_handlers";
 import { LinearProgress } from '@material-ui/core';
 
@@ -18,6 +18,8 @@ const SurveyorUIForm = styled.form`
     overflow: hidden;
     padding: 15px;
     width: 100%;
+    box-shadow: 2px 2px 5px rgba(0,0,0, 0.4);
+    border-radius: 2px;
 
     @media (min-width: 760px) {
         max-width: 400px;
@@ -50,7 +52,7 @@ const GeneratorContainer = styled.div`
 const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } : Props) => {
     const [surveyState, setSurveyState] = React.useState( initial_state ),
         [transformedSurveyData, setTransformedSurveyData] = React.useState( initial_transformed_data ),
-        [currentQuestion, setCurrentQuestion] = React.useState( null );
+        [currentQuestionID, setCurrentQuestionID] = React.useState( null );
     /**
      * List of refs for all of the question inputs.
      */
@@ -65,10 +67,10 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
         if ( Object.keys(surveyState).length === 0 )
         {
             setSurveyState(initial_state);
-            setCurrentQuestion(first(Object.keys(initial_state)));
+            setCurrentQuestionID(first(Object.keys(initial_state)));
 
             questionRefs.current = Object.keys(initial_state).reduce(( prev, curr ) => {
-                prev[curr] = React.createRef();
+                prev[curr] = React.createRef<HTMLElement>();
                 return prev;
             }, {})
         }
@@ -79,16 +81,21 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
         }
 
         /**
-         * If all refs are situated 
+         * If all refs are attached to dom elements and
+         * our current question is not the first question.
+         * 
+         * This allows for programmatic focus between each of our elements
          */
         if ( 
             questionRefs.current && 
-            questionRefs.current.hasOwnProperty(currentQuestion) &&
-            questionRefs.current[currentQuestion].current &&
-            currentQuestion !== first(Object.keys(surveyState))
+            questionRefs.current.hasOwnProperty(currentQuestionID) &&
+            questionRefs.current[currentQuestionID].current &&
+            currentQuestionID !== first(Object.keys(surveyState))
         )
         {
-            let survey_input = questionRefs.current[currentQuestion].current;
+            let survey_input = questionRefs.current[currentQuestionID].current;
+            
+            /** Don't hijack if the element that is currently focused IS our active element */
             if ( document.activeElement !== ReactDOM.findDOMNode(survey_input) )
             {
                 survey_input.focus()
@@ -99,12 +106,12 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
     const questionIDs = Object.keys(surveyState),
         firstQuestionID = first(questionIDs),
         lastQuestionID = questionIDs[questionIDs.length - 1],
-        isFirstQuestion = ( currentQuestion === firstQuestionID ), 
-        showSubmitButton = ( currentQuestion === lastQuestionID ),
-        currentQuestionIndex = questionIDs.indexOf(currentQuestion),
-        currentQuestionProgress = ( questionIDs.indexOf(currentQuestion) / questionIDs.length ) * 100,
-        previousButtonOnClick: (event: HTMLButtonElement) => void = gotoPreviousQuestion( currentQuestionIndex, questionIDs, setCurrentQuestion, questionRefs),
-        nextButtonClick: (event: HTMLButtonElement) => void = gotoNextQuestion(  currentQuestionIndex, questionIDs, setCurrentQuestion, questionRefs)
+        isFirstQuestion = ( currentQuestionID === firstQuestionID ), 
+        showSubmitButton = ( currentQuestionID === lastQuestionID ),
+        currentQuestionIndex = questionIDs.indexOf(currentQuestionID),
+        currentQuestionProgress = calculateSurveyProgress(surveyState),
+        previousButtonOnClick: (event: HTMLButtonElement) => void = gotoPreviousQuestion( currentQuestionIndex, questionIDs, setCurrentQuestionID),
+        nextButtonClick: (event: HTMLButtonElement) => void = gotoNextQuestion(  currentQuestionIndex, questionIDs, setCurrentQuestionID)
 
     return (
         <SurveyorUIForm onSubmit={submit_handler}>
@@ -113,7 +120,7 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
             </ProgressContainer>
             <GeneratorContainer>
                 <SurveyorGenerator 
-                    current_question={currentQuestion}
+                    current_question_id={currentQuestionID}
                     ref={questionRefs}
                     survey_data={transformedSurveyData} 
                     surveyState={surveyState} 
