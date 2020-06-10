@@ -50,12 +50,12 @@ function makeSurveyComponentState( id: string, value: string ) : SurveyComponent
     return {
         [ id ] : {
             value,
-            visible : false,
+            touched : false,
         }
     }
 }
 
-const transformComponentGroup = async (item : SurveyComponentGroup ):  Promise<[ SurveyComponentState, SurveyComponentGroup ]> => {
+async function transformComponentGroup(item : SurveyComponentGroup ):  Promise<[ SurveyComponentState, SurveyComponentGroup ]> {
 
     let state_object = {}
 
@@ -85,7 +85,7 @@ const transformComponentGroup = async (item : SurveyComponentGroup ):  Promise<[
  * @param state_object Survey State
  * @param transformed_data Initial JSON supplied survey data that is transformed to include UUIDs
  */
-const generateSurveyorData = async ( survey_data : SurveyorSurvey, state_object = {}, transformed_data = [] ) : Promise<[ SurveyComponentState, SurveyorSurvey ]> => {
+async function generateSurveyorData( survey_data : SurveyorSurvey, state_object = {}, transformed_data = [] ) : Promise<[ SurveyComponentState, SurveyorSurvey ]> {
     if ( ! survey_data.length )
     {
         return [ state_object, transformed_data ];
@@ -117,4 +117,19 @@ const generateSurveyorData = async ( survey_data : SurveyorSurvey, state_object 
     );
 }
 
-export { first, rest, flatten, makeSurveyComponentState, generateSurveyorData, isSpaceKey };
+/**
+ * Survey Progress is defined as the number of items that have been interacted with and have a value assigned
+ * divided by the total amount of items there are in the survey
+ * @param { SurveyComponentState } surveyState Current survey state
+ * @returns { number } Percentage decimal
+ */
+function calculateSurveyProgress( surveyState: SurveyComponentState ) {
+    let rawStateValues = Object.values(surveyState),
+        filteredStateValues = rawStateValues.filter(( stateValue ) => {
+            return ( stateValue.touched && stateValue.value !== "" )
+        });
+
+    return ( filteredStateValues.length / rawStateValues.length ) * 100;
+}
+
+export { first, rest, flatten, makeSurveyComponentState, generateSurveyorData, isSpaceKey, calculateSurveyProgress };
