@@ -1,5 +1,5 @@
 {
-  "name": "surveyor",
+  "name": "survey-sinch",
   "version": "1.0.0",
   "description": "React Component for surveys that provides an easy API to build a multi-step survey through JSON.",
   "main": "index.js",
