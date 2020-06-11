@@ -6,7 +6,12 @@ export type SurveyComponentItem = {
     label : string,
     value : string | number
 }
-export type SurveyComponentRef = React.MutableRefObject<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLElement>
+
+export type SurveyorInputChangeHandler = ( id : string ) => React.ChangeEventHandler;
+export type SurveyorInputFocusHandler = ( id : string ) => React.FocusEventHandler
+
+export type SurveyComponentTypes = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLElement;
+export type SurveyComponentRef = React.MutableRefObject<SurveyComponentTypes>
 export type SurveyComponentRefObject = React.MutableRefObject<{ [ id : string ] : SurveyComponentRef }>;
 export type SurveyComponent = ISurveyComponent | IChoicedSurveyComponent | SurveyComponentGroup
 export type SurveyComponentGroup = Array<ISurveyComponent | IChoicedSurveyComponent>
