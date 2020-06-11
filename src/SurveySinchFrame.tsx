@@ -10,6 +10,6 @@ const Frame = styled.div`
     display: ${ props => props.show_frame ? "block" : "none" }
 `;
 
-const SurveyorFrame = ({ children, show_frame } : Props) : JSX.Element => <Frame show_frame={show_frame}>{children}</Frame>
+const SurveySinchFrame = ({ children, show_frame } : Props) : JSX.Element => <Frame show_frame={show_frame}>{children}</Frame>
 
-export { SurveyorFrame };
+export { SurveySinchFrame };

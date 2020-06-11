@@ -8,7 +8,7 @@ type Props = {
     children : React.ReactNode,
 }
 
-const SurveyorContainer = ({ children }: Props): JSX.Element => {
+const SurveySinchContainer = ({ children }: Props): JSX.Element => {
     return (
         <StyledSurveyorContainer>
             {children}
@@ -16,4 +16,4 @@ const SurveyorContainer = ({ children }: Props): JSX.Element => {
     )
 }
 
-export { SurveyorContainer }
+export { SurveySinchContainer }

@@ -2,18 +2,19 @@ import React from "react";
 
 import { ISurveyComponent, IChoicedSurveyComponent } from "./interfaces";
 import { SurveyComponentType , SurveyComponentRefObject } from "./types";
-import { InputElement, ElementGroup } from "./components/InputComponents";
+import { InputElement, ElementGroup } from "./SurveySinchInputComponents";
 
 type Props = {
     component: ISurveyComponent | IChoicedSurveyComponent;
-    value: string;
-    onUpdate: (event : React.ChangeEvent<HTMLInputElement>) => void;
+    value: string | Array<string>;
+    singleValueUpdateHandler : (event : React.ChangeEvent<HTMLInputElement>) => void;
+    multiValueUpdateHandler: (event : React.ChangeEvent<HTMLInputElement>) => void;
     focusHandler: (event : React.FocusEvent<HTMLInputElement>) => void;
     forwardedRef: SurveyComponentRefObject;
 }
 
 
-const SurveyorFactory = ({ component, focusHandler, onUpdate, value, forwardedRef }: Props): JSX.Element => {
+const SurveySinchFactory = ({ component, focusHandler, singleValueUpdateHandler, multiValueUpdateHandler, value, forwardedRef }: Props): JSX.Element => {
     const type = component.type as SurveyComponentType;
 
     switch (type) {
@@ -22,9 +23,9 @@ const SurveyorFactory = ({ component, focusHandler, onUpdate, value, forwardedRe
             return <InputElement
                 id={component.id}
                 forwardedRef={forwardedRef}
-                value={value}
+                value={value as string}
                 type={type}
-                onUpdate={onUpdate}
+                onUpdate={singleValueUpdateHandler}
                 focusHandler={focusHandler}
                 labelText={component.label}
             />
@@ -37,15 +38,25 @@ const SurveyorFactory = ({ component, focusHandler, onUpdate, value, forwardedRe
                 id={component.id}
                 ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLSelectElement>}>{value}</select>
         case "radio":
-        case "checkbox":
             return <ElementGroup
                 id={component.id}
-                current_value={value}
+                current_value={value as string}
                 heading={component.label}
                 items={(component as IChoicedSurveyComponent).items}
                 forwardedRef={forwardedRef} 
                 type={type}
-                onUpdate={onUpdate}
+                onUpdate={singleValueUpdateHandler}
+                focusHandler={focusHandler}
+            />
+        case "checkbox":
+            return <ElementGroup
+                id={component.id}
+                current_value={value as Array<string>}
+                heading={component.label}
+                items={(component as IChoicedSurveyComponent).items}
+                forwardedRef={forwardedRef} 
+                type={type}
+                onUpdate={multiValueUpdateHandler}
                 focusHandler={focusHandler}
             />
         default:
@@ -53,4 +64,4 @@ const SurveyorFactory = ({ component, focusHandler, onUpdate, value, forwardedRe
     }
 }
 
-export { SurveyorFactory };
+export { SurveySinchFactory };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Surveyor } from "./Surveyor";
+import SurveySinch } from "./SurveySinch";
 import example from "../example/example_survey.json";
 import styled, { createGlobalStyle } from "styled-components";
 
@@ -32,7 +32,7 @@ export const App = () => {
     return (
         <AppWrapper>
             <GlobalStyles/>
-            <Surveyor survey_data={example}/>
+            <SurveySinch survey_data={example}/>
         </AppWrapper>
     )
 }

@@ -1,4 +1,4 @@
-import { SurveyorSurvey, SurveyComponent, SurveyComponentState, SurveyComponentGroup } from "./types";
+import SurveySinchSurvey, SurveyComponent, SurveyComponentState, SurveyComponentGroup } from "./types";
 import { isArray } from "util";
 import { v4 as uuid_generator } from "uuid";
 

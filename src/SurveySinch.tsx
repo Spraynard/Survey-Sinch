@@ -1,10 +1,10 @@
 import React, {  useEffect } from "react";
-import { SurveyorUI } from "./SurveyorUI";
-import { SurveyorSurvey } from "./types";
+import { SurveySinchUI } from "./SurveySinchUI";
+import { SurveySinchSurvey } from "./types";
 import { generateSurveyorData } from "./functions";
 
 type Props = {
-    survey_data?: SurveyorSurvey;
+    survey_data?: SurveySinchSurvey;
     onSubmit?: ( e ) => void;
 }
 
@@ -15,7 +15,7 @@ type Props = {
  * In order to prevent re-renders, we have included a Surveyor UI component
  * 
  */
-const Surveyor = ({ survey_data, onSubmit } : Props) : JSX.Element => {
+const SurveySinch = ({ survey_data, onSubmit } : Props) : JSX.Element => {
 
     const [ initialSurveyState, setInitialSurveyState ] = React.useState({});
     const [ initialTransformedSurveyData, setTransformedSurveyData ] = React.useState([]);
@@ -47,11 +47,11 @@ const Surveyor = ({ survey_data, onSubmit } : Props) : JSX.Element => {
         return onSubmit( e );
     }
 
-    return <SurveyorUI 
+    return <SurveySinchUI 
         initial_state={initialSurveyState} 
         initial_transformed_data={initialTransformedSurveyData} 
         submit_handler={submitHandler}
     />
 }
 
-export { Surveyor }
+export { SurveySinch }

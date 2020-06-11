@@ -1,19 +1,20 @@
 import React, { useEffect } from 'react';
-import { SurveyorGenerator } from "./SurveyorGenerator";
-import { SurveyorSurvey, SurveyComponentState, SurveyComponentRefObject } from "./types";
+import { SurveySinchGenerator } from "./SurveySinchGenerator";
+import { SurveySinchSurvey, SurveyComponentState, SurveyComponentRefObject } from "./types";
 import styled from "styled-components";
-import { SurveyorNextButton, SurveyorPreviousButton, SurveyorSubmitButton } from './components/SurveyorButton';
-import { first, calculateSurveyProgress, onSurveyorElementUpdate, onSurveyorElementFocus } from './functions';
-import { gotoNextQuestion, gotoPreviousQuestion } from "./event_handlers";
+import { SurveySinchNextButton, SurveySinchPreviousButton, SurveySinchSubmitButton } from './SurveySinchButton';
+import { first, calculateSurveyProgress } from './functions';
+import { gotoNextQuestion, gotoPreviousQuestion, onSurveySinchElementFocus, onSurveySinchElementUpdate, onSurveySinchMultiSelectElementUpdate } from "./event_handlers";
 import { LinearProgress } from '@material-ui/core';
+import { isArray } from "util";
 
 type Props = {
     initial_state : SurveyComponentState
-    initial_transformed_data: SurveyorSurvey;
+    initial_transformed_data: SurveySinchSurvey;
     submit_handler: ( e ) => void;
 }
 
-const SurveyorUIForm = styled.form`
+const SurveySinchUIForm = styled.form`
     overflow: hidden;
     padding: 15px;
     width: 100%;
@@ -28,7 +29,7 @@ const SurveyorUIForm = styled.form`
 /**
  * Holds Button Components on main screen view
  */
-const SurveyorButtonContainer = styled.div`
+const SurveySinchButtonContainer = styled.div`
     display: flex;
     justify-content: space-between;
     margin: 15px 0px 15px 0px;
@@ -48,7 +49,7 @@ const GeneratorContainer = styled.div`
     margin-bottom: 2rem;
 `;
 
-const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } : Props) : JSX.Element => {
+const SurveySinchUI = ({ initial_state, initial_transformed_data, submit_handler } : Props) : JSX.Element => {
     const [surveyState, setSurveyState] = React.useState( initial_state ),
         [transformedSurveyData, setTransformedSurveyData] = React.useState( initial_transformed_data ),
         [currentQuestionID, setCurrentQuestionID] = React.useState( null );
@@ -106,7 +107,16 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
         firstQuestionID = first(questionIDs),
         lastQuestionID = questionIDs[questionIDs.length - 1],
         isFirstQuestion = ( currentQuestionID === firstQuestionID ),
-        nextButtonEnabled = ( currentQuestionID && surveyState[currentQuestionID] && surveyState[currentQuestionID].value ),
+        nextButtonEnabled = ( 
+            currentQuestionID && 
+            surveyState[currentQuestionID] &&
+            surveyState[currentQuestionID].value && 
+            // If the current question's "value" in state is an Array<string>
+            isArray(surveyState[currentQuestionID].value) ? 
+                surveyState[currentQuestionID].value.length
+                :
+                true
+        ),
         showSubmitButton = ( currentQuestionID === lastQuestionID ),
         currentQuestionIndex = questionIDs.indexOf(currentQuestionID),
         currentQuestionProgress = calculateSurveyProgress(surveyState),
@@ -114,27 +124,28 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
         nextButtonClick: (event: HTMLButtonElement) => void = gotoNextQuestion(  currentQuestionIndex, questionIDs, setCurrentQuestionID)
 
     return (
-        <SurveyorUIForm onSubmit={submit_handler}>
+        <SurveySinchUIForm onSubmit={submit_handler}>
             <ProgressContainer>
                 <LinearProgress variant="determinate" value={currentQuestionProgress}/>
             </ProgressContainer>
             <GeneratorContainer>
-                <SurveyorGenerator 
+                <SurveySinchGenerator 
                     current_question_id={currentQuestionID}
                     ref={questionRefs}
                     survey_data={transformedSurveyData} 
                     surveyState={surveyState}
-                    onUpdateHandler={onSurveyorElementUpdate(surveyState, setSurveyState)}
-                    onFocusHandler={onSurveyorElementFocus(surveyState, setSurveyState, setCurrentQuestionID)}
+                    singleValueUpdateHandler={onSurveySinchElementUpdate(surveyState, setSurveyState)}
+                    multiValueUpdateHandler={onSurveySinchMultiSelectElementUpdate(surveyState, setSurveyState)}
+                    onFocusHandler={onSurveySinchElementFocus(surveyState, setSurveyState, setCurrentQuestionID)}
                 />
             </GeneratorContainer>
-            <SurveyorButtonContainer>
-                <SurveyorPreviousButton disabled={isFirstQuestion} onClick={previousButtonOnClick}/>
-                { showSubmitButton ? <SurveyorSubmitButton disabled={! nextButtonEnabled} /> 
-                                    : <SurveyorNextButton disabled={! nextButtonEnabled} onClick={nextButtonClick}/> }
-            </SurveyorButtonContainer>
-        </SurveyorUIForm>
+            <SurveySinchButtonContainer>
+                <SurveySinchPreviousButton disabled={isFirstQuestion} onClick={previousButtonOnClick}/>
+                { showSubmitButton ? <SurveySinchSubmitButton disabled={! nextButtonEnabled} /> 
+                                    : <SurveySinchNextButton disabled={! nextButtonEnabled} onClick={nextButtonClick}/> }
+            </SurveySinchButtonContainer>
+        </SurveySinchUIForm>
     )
 }
 
-export { SurveyorUI }
+export { SurveySinchUI }
