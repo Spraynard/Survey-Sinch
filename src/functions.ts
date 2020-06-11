@@ -1,6 +1,7 @@
-import SurveySinchSurvey, SurveyComponent, SurveyComponentState, SurveyComponentGroup } from "./types";
+import { SurveySinchSurvey, SurveyComponent, SurveyComponentState, SurveyComponentGroup } from "./types";
 import { isArray } from "util";
 import { v4 as uuid_generator } from "uuid";
+import { IChoicedSurveyComponent, ISurveyComponent } from "./interfaces";
 
 /**
  * Given a "Key" string from a synthetic event, be true if it is the space key.
@@ -45,7 +46,7 @@ function flatten<T>(items: Array<T>): Array<T> {
  * @param id UUID String
  * @param value Value for State
  */
-function makeSurveyComponentState(id: string, value: string): SurveyComponentState {
+function makeSingleValueSurveyComponentState(id: string, value = ""): SurveyComponentState {
     return {
         [id]: {
             value,
@@ -54,19 +55,50 @@ function makeSurveyComponentState(id: string, value: string): SurveyComponentSta
     }
 }
 
+/**
+ * Constructor function for a SurveyComponentState Type
+ * @param id UUID String
+ * @param value Value for State
+ */
+function makeMultiSelectSurveyComponentState(id: string, value: Array<string> = []): SurveyComponentState {
+    return {
+        [id]: {
+            value,
+            touched: false,
+        }
+    }
+}
+
+/**
+ * Functional wrapper around providing a initial value for our SurveyComponentState
+ * @param id ID of component
+ * @param surveyComponent Component being referenced
+ */
+function makeSurveyComponentState(id : string, surveyComponent : ISurveyComponent | IChoicedSurveyComponent) : SurveyComponentState {
+    return ( 
+        surveyComponent.type === "checkbox" || 
+        surveyComponent.type === "multi-select" 
+    ) ? makeMultiSelectSurveyComponentState(id)
+        :
+        makeSingleValueSurveyComponentState(id);
+}
+
+
 async function transformComponentGroup(item: SurveyComponentGroup): Promise<[SurveyComponentState, SurveyComponentGroup]> {
 
     let state_object = {}
 
     const transformGroup = (item) => {
-        return item.map((survey_component) => {
+        return item.map((survey_component : ISurveyComponent | IChoicedSurveyComponent) => {
             if (isArray(survey_component)) {
                 transformComponentGroup(survey_component)
             }
 
-            const id = uuid_generator();
+            const id = uuid_generator(),
+                /** Create the initial state for the component */
+                initialState = makeSurveyComponentState(id, survey_component)
 
-            state_object = { ...state_object, ...makeSurveyComponentState(id, "") }
+            state_object = { ...state_object, ...initialState }
             return { id, ...survey_component }
         })
     }
@@ -77,59 +109,6 @@ async function transformComponentGroup(item: SurveyComponentGroup): Promise<[Sur
 }
 
 /**
- * Global survey item "onUpdate" handler. Provides a general method of taking
- * the value of the item that has been interacted with and saving it within
- * state.
- * 
- * @param surveyState Survey State Object Getter Hook
- * @param setSurveyState Survey State Object Setter Hook
- */
-function onSurveyorElementUpdate(
-    surveyState: SurveyComponentState,
-    setSurveyState: React.Dispatch<React.SetStateAction<SurveyComponentState>>
-) {
-    return (id: string) => (event: React.ChangeEvent<HTMLInputElement>): void => {
-        return setSurveyState({
-            ...surveyState,
-            [id]: {
-                ...surveyState[id],
-                value: event.target.value
-            }
-        })
-    }
-}
-
-/**
- * Global survey item "onFocus" event handler. Handles side effects of focusing
- * for all elements that are created.
- * 
- * @param surveyState Surrvey state object getter hook
- * @param setSurveyState Survey state object setter hook
- * @param setCurrentQuestionID Setter Hook for the current question id
- */
-function onSurveyorElementFocus(
-    surveyState: SurveyComponentState,
-    setSurveyState: React.Dispatch<React.SetStateAction<SurveyComponentState>>,
-    setCurrentQuestionID: React.Dispatch<React.SetStateAction<string>>
-) {
-    return (id: string) => (): void => {
-        setCurrentQuestionID(id);
-
-        if (surveyState[id].touched) {
-            return;
-        }
-
-        return setSurveyState({
-            ...surveyState,
-            [id]: {
-                ...surveyState[id],
-                touched: true
-            }
-        })
-    }
-}
-
-/**
  * Generates a pair that includes state to use for our generated survey (keyed by a programmatically created id) and
  * survey data transformed to include the programmatically created id.
  * 
@@ -137,13 +116,13 @@ function onSurveyorElementFocus(
  * @param state_object Survey State
  * @param transformed_data Initial JSON supplied survey data that is transformed to include UUIDs
  */
-async function generateSurveyorData(survey_data: SurveyorSurvey, state_object = {}, transformed_data = []): Promise<[SurveyComponentState, SurveyorSurvey]> {
+async function generateSurveyorData(survey_data: SurveySinchSurvey, state_object = {}, transformed_data = []): Promise<[SurveyComponentState, SurveySinchSurvey]> {
     if (!survey_data.length) {
         return [state_object, transformed_data];
     }
 
     const item: SurveyComponent = first<SurveyComponent>(survey_data),
-        rest_items: SurveyorSurvey = rest<SurveyComponent>(survey_data);
+        restItems: SurveySinchSurvey = rest<SurveyComponent>(survey_data);
 
     /**
      * If our item is an array, recursively generate another array.
@@ -152,18 +131,19 @@ async function generateSurveyorData(survey_data: SurveyorSurvey, state_object = 
         const [state_from_group, transformed_group_data] = await transformComponentGroup(item);
 
         return generateSurveyorData(
-            rest_items,
+            restItems,
             { ...state_object, ...state_from_group },
             [...transformed_data, transformed_group_data]
         )
     }
 
-    const item_id = uuid_generator();
+    const id = uuid_generator(),
+        initialState = makeSurveyComponentState(id, item)
 
     return generateSurveyorData(
-        rest_items,
-        { ...state_object, ...makeSurveyComponentState(item_id, "") },
-        [...transformed_data, { ...item, id: item_id }]
+        restItems,
+        { ...state_object, ...initialState },
+        [...transformed_data, { ...item, id: id }]
     );
 }
 
@@ -190,6 +170,4 @@ export {
     generateSurveyorData,
     isSpaceKey,
     calculateSurveyProgress,
-    onSurveyorElementFocus,
-    onSurveyorElementUpdate
 };

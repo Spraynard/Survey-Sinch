@@ -1,5 +1,5 @@
 import React from "react";
-import SurveySinch } from "./SurveySinch";
+import { SurveySinch } from "./SurveySinch";
 import example from "../example/example_survey.json";
 import styled, { createGlobalStyle } from "styled-components";
 

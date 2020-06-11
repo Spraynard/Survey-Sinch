@@ -1,14 +1,15 @@
 import { ISurveyComponent, IChoicedSurveyComponent } from "./interfaces";
 
-export type SurveyComponentType = "text" | "number" | "textbox" | "select" | "radio" | "checkbox";
+export type SurveyComponentType = "text" | "number" | "textbox" | "select" | "radio" | "checkbox" | "multi-select";
 
 export type SurveyComponentItem = {
     label : string,
-    value : string | number
+    value : string,
 }
 
-export type SurveyorInputChangeHandler = ( id : string ) => React.ChangeEventHandler;
-export type SurveyorInputFocusHandler = ( id : string ) => React.FocusEventHandler
+export type SurveySinchInputChangeHandler = ( id : string ) => React.ChangeEventHandler;
+export type SurveySinchInputFocusHandler = ( id : string ) => React.FocusEventHandler;
+export type SurveySinchClickHandler = ( id : string ) => React.MouseEventHandler;
 
 export type SurveyComponentTypes = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | HTMLElement;
 export type SurveyComponentRef = React.MutableRefObject<SurveyComponentTypes>
@@ -18,9 +19,9 @@ export type SurveyComponentGroup = Array<ISurveyComponent | IChoicedSurveyCompon
 
 export type SurveyComponentState = {
     [ id : string ] : {
-        value : string;
+        value : string | Array<string>;
         touched : boolean;
     }
 }
 
-export type SurveyorSurvey = Array<SurveyComponent>
+export type SurveySinchSurvey = Array<SurveyComponent>
