@@ -1,10 +1,9 @@
-import React, { useEffect, useRef } from 'react';
-import ReactDOM from "react-dom";
+import React, { useEffect } from 'react';
 import { SurveyorGenerator } from "./SurveyorGenerator";
-import { SurveyorSurvey, SurveyComponentState, SurveyComponentRef, SurveyComponentRefObject } from "./types";
+import { SurveyorSurvey, SurveyComponentState, SurveyComponentRefObject } from "./types";
 import styled from "styled-components";
 import { SurveyorNextButton, SurveyorPreviousButton, SurveyorSubmitButton } from './components/SurveyorButton';
-import { first, calculateSurveyProgress } from './functions';
+import { first, calculateSurveyProgress, onSurveyorElementUpdate, onSurveyorElementFocus } from './functions';
 import { gotoNextQuestion, gotoPreviousQuestion } from "./event_handlers";
 import { LinearProgress } from '@material-ui/core';
 
@@ -49,14 +48,14 @@ const GeneratorContainer = styled.div`
     margin-bottom: 2rem;
 `;
 
-const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } : Props) => {
+const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } : Props) : JSX.Element => {
     const [surveyState, setSurveyState] = React.useState( initial_state ),
         [transformedSurveyData, setTransformedSurveyData] = React.useState( initial_transformed_data ),
         [currentQuestionID, setCurrentQuestionID] = React.useState( null );
     /**
      * List of refs for all of the question inputs.
      */
-    let questionRefs: SurveyComponentRefObject = React.useRef(null);
+    const questionRefs: SurveyComponentRefObject = React.useRef(null);
 
 
     /**
@@ -88,15 +87,15 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
          */
         if ( 
             questionRefs.current && 
-            questionRefs.current.hasOwnProperty(currentQuestionID) &&
+            Object.prototype.hasOwnProperty.call(questionRefs.current, currentQuestionID) &&
             questionRefs.current[currentQuestionID].current &&
             currentQuestionID !== first(Object.keys(surveyState))
         )
         {
-            let survey_input = questionRefs.current[currentQuestionID].current;
+            const survey_input = questionRefs.current[currentQuestionID].current;
             
             /** Don't hijack if the element that is currently focused IS our active element */
-            if ( document.activeElement !== ReactDOM.findDOMNode(survey_input) )
+            if ( document.activeElement !== survey_input )
             {
                 survey_input.focus()
             }
@@ -106,7 +105,8 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
     const questionIDs = Object.keys(surveyState),
         firstQuestionID = first(questionIDs),
         lastQuestionID = questionIDs[questionIDs.length - 1],
-        isFirstQuestion = ( currentQuestionID === firstQuestionID ), 
+        isFirstQuestion = ( currentQuestionID === firstQuestionID ),
+        nextButtonEnabled = ( currentQuestionID && surveyState[currentQuestionID] && surveyState[currentQuestionID].value ),
         showSubmitButton = ( currentQuestionID === lastQuestionID ),
         currentQuestionIndex = questionIDs.indexOf(currentQuestionID),
         currentQuestionProgress = calculateSurveyProgress(surveyState),
@@ -123,13 +123,15 @@ const SurveyorUI = ({ initial_state, initial_transformed_data, submit_handler } 
                     current_question_id={currentQuestionID}
                     ref={questionRefs}
                     survey_data={transformedSurveyData} 
-                    surveyState={surveyState} 
-                    setSurveyState={setSurveyState}
+                    surveyState={surveyState}
+                    onUpdateHandler={onSurveyorElementUpdate(surveyState, setSurveyState)}
+                    onFocusHandler={onSurveyorElementFocus(surveyState, setSurveyState, setCurrentQuestionID)}
                 />
             </GeneratorContainer>
             <SurveyorButtonContainer>
                 <SurveyorPreviousButton disabled={isFirstQuestion} onClick={previousButtonOnClick}/>
-                { showSubmitButton ? <SurveyorSubmitButton/> : <SurveyorNextButton onClick={nextButtonClick}/> }
+                { showSubmitButton ? <SurveyorSubmitButton disabled={! nextButtonEnabled} /> 
+                                    : <SurveyorNextButton disabled={! nextButtonEnabled} onClick={nextButtonClick}/> }
             </SurveyorButtonContainer>
         </SurveyorUIForm>
     )
