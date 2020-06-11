@@ -1,7 +1,6 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import { SurveyorGenerator } from "./SurveyorGenerator";
+import React, {  useEffect } from "react";
 import { SurveyorUI } from "./SurveyorUI";
-import { SurveyorSurvey, SurveyComponent } from "./types";
+import { SurveyorSurvey } from "./types";
 import { generateSurveyorData } from "./functions";
 
 type Props = {
@@ -16,7 +15,7 @@ type Props = {
  * In order to prevent re-renders, we have included a Surveyor UI component
  * 
  */
-export const Surveyor = ({ survey_data, onSubmit } : Props) => {
+const Surveyor = ({ survey_data, onSubmit } : Props) : JSX.Element => {
 
     const [ initialSurveyState, setInitialSurveyState ] = React.useState({});
     const [ initialTransformedSurveyData, setTransformedSurveyData ] = React.useState([]);
@@ -26,7 +25,7 @@ export const Surveyor = ({ survey_data, onSubmit } : Props) => {
      */
     useEffect(() => {
         async function initializeSurveyerDataGeneration() {
-            let [ initial_state, initial_transformed_data ] = await generateSurveyorData(survey_data);
+            const [ initial_state, initial_transformed_data ] = await generateSurveyorData(survey_data);
 
             setInitialSurveyState(initial_state);
             setTransformedSurveyData(initial_transformed_data);
@@ -54,3 +53,5 @@ export const Surveyor = ({ survey_data, onSubmit } : Props) => {
         submit_handler={submitHandler}
     />
 }
+
+export { Surveyor }
