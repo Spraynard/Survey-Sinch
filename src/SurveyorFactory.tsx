@@ -1,19 +1,19 @@
 import React from "react";
 
 import { ISurveyComponent, IChoicedSurveyComponent } from "./interfaces";
-import { SurveyComponentType, SurveyComponentRef, SurveyComponentRefObject } from "./types";
+import { SurveyComponentType , SurveyComponentRefObject } from "./types";
 import { InputElement, ElementGroup } from "./components/InputComponents";
 
 type Props = {
     component: ISurveyComponent | IChoicedSurveyComponent;
     value: string;
-    onUpdate: React.ChangeEventHandler;
-    focusHandler: (event) => void;
+    onUpdate: (event : React.ChangeEvent<HTMLInputElement>) => void;
+    focusHandler: (event : React.FocusEvent<HTMLInputElement>) => void;
     forwardedRef: SurveyComponentRefObject;
 }
 
 
-const SurveyorFactory = ({ component, focusHandler, onUpdate, value, forwardedRef }: Props) => {
+const SurveyorFactory = ({ component, focusHandler, onUpdate, value, forwardedRef }: Props): JSX.Element => {
     const type = component.type as SurveyComponentType;
 
     switch (type) {
