@@ -4,7 +4,11 @@ import styled from "styled-components";
 const StyledSurveyorContainer = styled.div`
 `;
 
-const SurveyorContainer = ({ children, depth }) => {
+type Props = {
+    children : React.ReactNode,
+}
+
+const SurveyorContainer = ({ children }: Props): JSX.Element => {
     return (
         <StyledSurveyorContainer>
             {children}
