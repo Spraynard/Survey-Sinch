@@ -11,7 +11,10 @@ import { isArray } from "util";
 type Props = {
     initial_state : SurveyComponentState
     initial_transformed_data: SurveySinchSurvey;
-    submit_handler: ( e ) => void;
+    submit_handler: ( 
+        surveyState : SurveyComponentState,
+        surveyData : SurveySinchSurvey
+    ) => ( e : React.FormEvent ) => void
 }
 
 const SurveySinchUIForm = styled.form`
@@ -113,18 +116,19 @@ const SurveySinchUI = ({ initial_state, initial_transformed_data, submit_handler
             surveyState[currentQuestionID].value && 
             // If the current question's "value" in state is an Array<string>
             isArray(surveyState[currentQuestionID].value) ? 
-                surveyState[currentQuestionID].value.length
+                surveyState[currentQuestionID].value.length > 0
                 :
                 true
         ),
-        showSubmitButton = ( currentQuestionID === lastQuestionID ),
+        currentQuestionIsLastQuestion = ( currentQuestionID === lastQuestionID ),
         currentQuestionIndex = questionIDs.indexOf(currentQuestionID),
         currentQuestionProgress = calculateSurveyProgress(surveyState),
+        currentQuestionProgressIsMaxValue = currentQuestionProgress === 100,
         previousButtonOnClick: (event: HTMLButtonElement) => void = gotoPreviousQuestion( currentQuestionIndex, questionIDs, setCurrentQuestionID),
         nextButtonClick: (event: HTMLButtonElement) => void = gotoNextQuestion(  currentQuestionIndex, questionIDs, setCurrentQuestionID)
 
     return (
-        <SurveySinchUIForm onSubmit={submit_handler}>
+        <SurveySinchUIForm onSubmit={submit_handler(surveyState, transformedSurveyData)}>
             <ProgressContainer>
                 <LinearProgress variant="determinate" value={currentQuestionProgress}/>
             </ProgressContainer>
@@ -141,8 +145,8 @@ const SurveySinchUI = ({ initial_state, initial_transformed_data, submit_handler
             </GeneratorContainer>
             <SurveySinchButtonContainer>
                 <SurveySinchPreviousButton disabled={isFirstQuestion} onClick={previousButtonOnClick}/>
-                { showSubmitButton ? <SurveySinchSubmitButton disabled={! nextButtonEnabled} /> 
-                                    : <SurveySinchNextButton disabled={! nextButtonEnabled} onClick={nextButtonClick}/> }
+                { ! currentQuestionIsLastQuestion ? <SurveySinchNextButton disabled={! nextButtonEnabled} onClick={nextButtonClick}/> : null }
+                { ( currentQuestionProgressIsMaxValue || currentQuestionIsLastQuestion ) ? <SurveySinchSubmitButton disabled={! nextButtonEnabled}/> : null }
             </SurveySinchButtonContainer>
         </SurveySinchUIForm>
     )

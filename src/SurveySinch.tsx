@@ -1,11 +1,12 @@
 import React, {  useEffect } from "react";
 import { SurveySinchUI } from "./SurveySinchUI";
-import { SurveySinchSurvey } from "./types";
+import { SurveySinchSurvey, SurveySinchFormEventHandler } from "./types";
 import { generateSurveyorData } from "./functions";
+import { defaultOnSubmitHandler, formEventHandler } from "./event_handlers";
 
 type Props = {
     survey_data?: SurveySinchSurvey;
-    onSubmit?: ( e ) => void;
+    onSubmit?: SurveySinchFormEventHandler;
 }
 
 /**
@@ -15,7 +16,7 @@ type Props = {
  * In order to prevent re-renders, we have included a Surveyor UI component
  * 
  */
-const SurveySinch = ({ survey_data, onSubmit } : Props) : JSX.Element => {
+const SurveySinch = ({ survey_data, onSubmit = defaultOnSubmitHandler } : Props) : JSX.Element => {
 
     const [ initialSurveyState, setInitialSurveyState ] = React.useState({});
     const [ initialTransformedSurveyData, setTransformedSurveyData ] = React.useState([]);
@@ -34,23 +35,12 @@ const SurveySinch = ({ survey_data, onSubmit } : Props) : JSX.Element => {
         initializeSurveyerDataGeneration()
     }, []);
 
-        /**
-     * Function wraps around the user supplied submit handler and makes sure that the form's default actions have been prevented.
-     * @param e Form Submit Event.
-     */
-    const submitHandler = ( e ) => {
-        if ( ! e.defaultPrevented )
-        {
-            e.preventDefault();
-        }
-
-        return onSubmit( e );
-    }
+    const partialSubmitHandler = formEventHandler(onSubmit);
 
     return <SurveySinchUI 
         initial_state={initialSurveyState} 
         initial_transformed_data={initialTransformedSurveyData} 
-        submit_handler={submitHandler}
+        submit_handler={partialSubmitHandler}
     />
 }
 

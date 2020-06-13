@@ -7,6 +7,19 @@ export type SurveyComponentItem = {
     value : string,
 }
 
+export type SurveySinchReportItem = {
+    question : string,
+    answer : string,
+}
+
+export type SurveySinchReport = Array<SurveySinchReportItem>;
+
+export type SurveySinchFormEvent = {
+    SyntheticEvent : React.FormEvent
+    FormData : SurveySinchReport
+}
+
+export type SurveySinchFormEventHandler = ( e : SurveySinchFormEvent ) => void;
 export type SurveySinchInputChangeHandler = ( id : string ) => React.ChangeEventHandler;
 export type SurveySinchInputFocusHandler = ( id : string ) => React.FocusEventHandler;
 export type SurveySinchClickHandler = ( id : string ) => React.MouseEventHandler;

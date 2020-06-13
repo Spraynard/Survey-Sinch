@@ -156,18 +156,23 @@ async function generateSurveyorData(survey_data: SurveySinchSurvey, state_object
 function calculateSurveyProgress(surveyState: SurveyComponentState) : number {
     const rawStateValues = Object.values(surveyState),
         filteredStateValues = rawStateValues.filter((stateValue) => {
-            return (stateValue.touched && stateValue.value !== "")
+            if ( isArray(stateValue.value) )
+            {
+                return stateValue.touched && stateValue.value.length
+            }
+
+            return stateValue.touched && stateValue.value !== ""
         });
 
     return (filteredStateValues.length / rawStateValues.length) * 100;
 }
 
 export {
+    calculateSurveyProgress,
     first,
-    rest,
     flatten,
-    makeSurveyComponentState,
     generateSurveyorData,
     isSpaceKey,
-    calculateSurveyProgress,
+    makeSurveyComponentState,
+    rest
 };

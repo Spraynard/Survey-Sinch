@@ -1,4 +1,7 @@
-import { SurveyComponentState, SurveyComponentType } from "./types";
+import { SurveyComponentState, SurveySinchFormEvent, SurveySinchFormEventHandler, SurveySinchSurvey, SurveySinchReport, SurveySinchReportItem } from "./types";
+import { ISurveyComponent, IChoicedSurveyComponent } from "./interfaces";
+import { flatten } from "./functions";
+import { isArray } from "util";
 
 const goToQuestion = ( 
     question_index: number,
@@ -18,7 +21,7 @@ const goToQuestion = (
     setCurrentQuestion(newQuestionId);
 }
 
-export const gotoPreviousQuestion = ( question_index: number, questionIDs, setCurrentQuestion ) =>
+export const gotoPreviousQuestion = ( question_index: number, questionIDs, setCurrentQuestion ) : ( e : HTMLButtonElement ) => void =>
     goToQuestion(
         question_index,
         questionIDs,
@@ -27,7 +30,7 @@ export const gotoPreviousQuestion = ( question_index: number, questionIDs, setCu
         ( value ) => value - 1
     )
 
-export const gotoNextQuestion = ( question_index: number, questionIDs, setCurrentQuestion ) =>
+export const gotoNextQuestion = ( question_index: number, questionIDs, setCurrentQuestion ) : ( e : HTMLButtonElement ) => void =>
     goToQuestion(
         question_index,
         questionIDs,
@@ -118,4 +121,68 @@ export const onSurveySinchElementFocus = (
             }
         })
     }
+}
+
+const getMember = ( arr : Array<object>, predicate : ( obj : object ) => boolean ) => arr.reduce((prev, curr) => {
+    if ( prev )
+    {
+        return prev;
+    }
+
+    if ( predicate( curr ) )
+    {
+        return curr
+    }
+
+    return prev;
+}, null);
+
+const getObjectByID = ( arr, id ) => getMember( arr, ( obj ) => ( obj.id && obj.id === id ))
+
+/**
+ * Partialized function used to wrap around the full instance of the React.FormEvent that
+ * would be obtained by the form submission.
+ */
+export const formEventHandler = (
+    onSubmit : SurveySinchFormEventHandler
+) => (
+    surveyState : SurveyComponentState,
+    surveyData : SurveySinchSurvey
+) => ( e : React.FormEvent ) : void => {
+    if ( ! e.defaultPrevented )
+    {
+        e.preventDefault();
+    }
+
+    const formData : SurveySinchReport = Object.entries(surveyState).map( entry => {
+        const [ key, componentState ] = entry,
+            componentLabel : string = (
+                getObjectByID( flatten(surveyData), key ) as ISurveyComponent | IChoicedSurveyComponent 
+            ).label,
+            componentValue : string = isArray( componentState.value ) ? componentState.value.join(",") : componentState.value
+
+        return ({
+            question : componentLabel,
+            answer : componentValue
+        } as SurveySinchReportItem)
+    });
+
+    /**
+     * Here we build our form event from the previous operations.
+     */
+    const FormEvent : SurveySinchFormEvent = {
+        SyntheticEvent : e,
+        FormData : formData
+    }
+
+    return onSubmit( FormEvent );
+}
+
+/**
+ * Default on submit will just console log out the current data gained from our survey.
+ */
+export const defaultOnSubmitHandler = ( e : SurveySinchFormEvent ) : void => {
+    console.group("Survey Sinch Submit Event");
+    console.log("Submit Occured")
+    console.log(JSON.stringify(e.FormData, null, 4));
 }
