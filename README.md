@@ -4,6 +4,9 @@ React component that allows you to build a fully featured survey in a short amou
 
 ## Installation 
 
+## Testing
+
+Survey Sinch can be tested by running `npm run test`. Tests are located in the `test/` folder.
 
 ## Usage
 
