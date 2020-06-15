@@ -15,8 +15,16 @@ Only the `SurveySinch` component is needed for display. This allows you to place
 Example usage for the component is shown below
 
 ```js
-import { SurveySinch } from "survey-sinch/src/SurveySinch"
-const App = ( props ) => {}
+import React from "react";
+import ReactDOM from "react-dom";
+
+import { SurveySinch } from "survey-sinch";
+import survey_data from "./survey_data.json";
+
+ReactDOM.render(
+  <SurveySinch survey_data={survey_data}/>,
+  document.getElementById("root")
+)
 ```
 
 ### SurveySinch Component
