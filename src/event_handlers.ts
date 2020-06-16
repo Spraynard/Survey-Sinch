@@ -52,7 +52,7 @@ export const onSurveySinchElementUpdate = (
     surveyState: SurveyComponentState,
     setSurveyState: React.Dispatch<React.SetStateAction<SurveyComponentState>>
 ) => {
-    return (id: string) => (event: React.ChangeEvent<HTMLInputElement>): void => {
+    return (id: string) => (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
         return setSurveyState({
             ...surveyState,
             [id]: {
@@ -185,4 +185,5 @@ export const defaultOnSubmitHandler = ( e : SurveySinchFormEvent ) : void => {
     console.group("Survey Sinch Submit Event");
     console.log("Submit Occured")
     console.log(JSON.stringify(e.FormData, null, 4));
+    console.groupEnd();
 }
