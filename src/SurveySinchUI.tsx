@@ -10,11 +10,12 @@ import styled from "styled-components";
 
 
 const SurveySinchUIForm = styled.form`
+    border-radius: 2px;
+    box-shadow: 2px 2px 5px rgba(0,0,0, 0.4);
+    color: #444444;
     overflow: hidden;
     padding: 15px;
     width: 100%;
-    box-shadow: 2px 2px 5px rgba(0,0,0, 0.4);
-    border-radius: 2px;
 
     @media (min-width: 760px) {
         max-width: 400px;
