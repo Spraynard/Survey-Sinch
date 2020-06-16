@@ -48,6 +48,11 @@ const Input = styled.input`
         width: 100%;
         padding: 10px;
         font-size: 1.10em;
+        color: #444444;
+
+        option {
+            color #444444;
+        }
     `;
 
 const TextInputContainer = ({ id, text, children }: { id : string, text : string, children : React.ReactNode}) => 
