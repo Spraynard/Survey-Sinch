@@ -1,21 +1,13 @@
 import React, { useEffect } from 'react';
 import { SurveySinchGenerator } from "./SurveySinchGenerator";
 import { SurveySinchSurvey, SurveyComponentState, SurveyComponentRefObject } from "./types";
-import styled from "styled-components";
 import { SurveySinchNextButton, SurveySinchPreviousButton, SurveySinchSubmitButton } from './SurveySinchButton';
-import { first, calculateSurveyProgress } from './functions';
+import { first, calculateSurveyProgress, shouldNextButtonBeEnabled } from './functions';
 import { gotoNextQuestion, gotoPreviousQuestion, onSurveySinchElementFocus, onSurveySinchElementUpdate, onSurveySinchMultiSelectElementUpdate } from "./event_handlers";
 import { LinearProgress } from '@material-ui/core';
-import { isArray } from "util";
 
-type Props = {
-    initial_state : SurveyComponentState
-    initial_transformed_data: SurveySinchSurvey;
-    submit_handler: ( 
-        surveyState : SurveyComponentState,
-        surveyData : SurveySinchSurvey
-    ) => ( e : React.FormEvent ) => void
-}
+import styled from "styled-components";
+
 
 const SurveySinchUIForm = styled.form`
     overflow: hidden;
@@ -51,6 +43,15 @@ const ProgressContainer = styled.div`
 const GeneratorContainer = styled.div`
     margin-bottom: 2rem;
 `;
+
+type Props = {
+    initial_state : SurveyComponentState
+    initial_transformed_data: SurveySinchSurvey;
+    submit_handler: ( 
+        surveyState : SurveyComponentState,
+        surveyData : SurveySinchSurvey
+    ) => ( e : React.FormEvent ) => void
+}
 
 const SurveySinchUI = ({ initial_state, initial_transformed_data, submit_handler } : Props) : JSX.Element => {
     const [surveyState, setSurveyState] = React.useState( initial_state ),
@@ -110,22 +111,13 @@ const SurveySinchUI = ({ initial_state, initial_transformed_data, submit_handler
         firstQuestionID = first(questionIDs),
         lastQuestionID = questionIDs[questionIDs.length - 1],
         isFirstQuestion = ( currentQuestionID === firstQuestionID ),
-        nextButtonEnabled = ( 
-            currentQuestionID && 
-            surveyState[currentQuestionID] &&
-            surveyState[currentQuestionID].value && 
-            // If the current question's "value" in state is an Array<string>
-            isArray(surveyState[currentQuestionID].value) ? 
-                surveyState[currentQuestionID].value.length > 0
-                :
-                true
-        ),
+        nextButtonEnabled = shouldNextButtonBeEnabled(currentQuestionID, surveyState),
         currentQuestionIsLastQuestion = ( currentQuestionID === lastQuestionID ),
         currentQuestionIndex = questionIDs.indexOf(currentQuestionID),
         currentQuestionProgress = calculateSurveyProgress(surveyState),
         currentQuestionProgressIsMaxValue = currentQuestionProgress === 100,
-        previousButtonOnClick: (event: HTMLButtonElement) => void = gotoPreviousQuestion( currentQuestionIndex, questionIDs, setCurrentQuestionID),
-        nextButtonClick: (event: HTMLButtonElement) => void = gotoNextQuestion(  currentQuestionIndex, questionIDs, setCurrentQuestionID)
+        previousButtonOnClick: (event: HTMLButtonElement) => void = gotoPreviousQuestion(currentQuestionIndex, questionIDs, setCurrentQuestionID),
+        nextButtonClick: (event: HTMLButtonElement) => void = gotoNextQuestion(currentQuestionIndex, questionIDs, setCurrentQuestionID)
 
     return (
         <SurveySinchUIForm onSubmit={submit_handler(surveyState, transformedSurveyData)}>
