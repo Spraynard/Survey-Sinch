@@ -167,6 +167,25 @@ function calculateSurveyProgress(surveyState: SurveyComponentState) : number {
     return (filteredStateValues.length / rawStateValues.length) * 100;
 }
 
+/**
+ * The "next" button on our surveys should not be clickable unless the person
+ * has filled out a value in the survey
+ * 
+ * @param {string} question_id ID of question in state to consider
+ * @param {SurveyComponentState} surveyState Current state of the survey
+ */
+function shouldNextButtonBeEnabled( current_question_id : string, surveyState : SurveyComponentState ) : boolean {
+
+    const value_of_question_in_state = surveyState[current_question_id]?.value;
+
+    if ( isArray( value_of_question_in_state ) )
+    {
+        return value_of_question_in_state.length > 0;
+    }
+
+    return value_of_question_in_state !== "";
+}
+
 export {
     calculateSurveyProgress,
     first,
@@ -174,5 +193,6 @@ export {
     generateSurveyorData,
     isSpaceKey,
     makeSurveyComponentState,
+    shouldNextButtonBeEnabled,
     rest
 };
