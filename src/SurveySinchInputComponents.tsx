@@ -17,7 +17,8 @@ const TextInputLabel = styled(Label)`
 const Input = styled.input`
         box-sizing: border-box;
         font-size: 1.10em;
-        margin-right: ${ props => ( props.type === "radio" || props.type === "checkbox" ) ? "15px" : "initial" }
+        margin-right: ${ props => ( props.type === "radio" || props.type === "checkbox" ) ? "15px" : "initial" };
+        color: #444444;
 `,
     InputContainer = styled.div`
         display: block;
