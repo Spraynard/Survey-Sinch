@@ -19,7 +19,7 @@ const Button = styled.button`
     border-radius: 5px;
     box-shadow: ${ props => ( props.isClicked || props.disabled ) ? "0 3px 0px #101d28" : "0px 5px 0px #101d28" };
     color: ${ props => ( props.disabled ) ? "black" : "white"};
-    cursor: pointer;
+    cursor: ${ props => props.disabled ? "default" : "pointer" };
     font-size: 1.15em;
     padding: 15px 30px;
     position: relative;
