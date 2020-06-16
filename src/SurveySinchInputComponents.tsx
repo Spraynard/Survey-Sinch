@@ -5,7 +5,7 @@ import { isArray } from "util";
 
 
 const Label = styled.label`
-    font-size: 1.10em;
+    font-size: 1.15em;
 `;
 
 const TextInputLabel = styled(Label)`
@@ -16,7 +16,8 @@ const TextInputLabel = styled(Label)`
 
 const Input = styled.input`
         box-sizing: border-box;
-        font-size: 1.15em;
+        font-size: 1.10em;
+        margin-right: ${ props => ( props.type === "radio" || props.type === "checkbox" ) ? "15px" : "initial" }
 `,
     InputContainer = styled.div`
         display: block;
@@ -41,7 +42,13 @@ const Input = styled.input`
         padding: 10px;
         width: 100%;
 `,
-    NumberInput = styled(TextInput)``;
+    NumberInput = styled(TextInput)``,
+    SelectInput = styled.select`
+        margin-top: 15px;
+        width: 100%;
+        padding: 10px;
+        font-size: 1.10em;
+    `;
 
 const TextInputContainer = ({ id, text, children }: { id : string, text : string, children : React.ReactNode}) => 
     <InputContainer>
@@ -110,21 +117,22 @@ const RadioElement = ({
     />
 
 
-type ElementGroupProps = {
+type ChoicedElementProps = {
     id : string;
     current_value : string | Array<string>;
-    heading : string;
+    label : string;
     items : Array<SurveyComponentItem>;
     forwardedRef : SurveyComponentRefObject;
-    onUpdate : ( e : React.ChangeEvent ) => void;
+    onUpdate : ( e : React.ChangeEvent | React.SyntheticEvent<HTMLSelectElement, Event>) => void;
     focusHandler : ( e : React.FocusEvent ) => void;
-    type : string;
 }
+
+type ElementGroupProps = ChoicedElementProps & { type : string; }
 
 const ElementGroup = ({
     id, 
     current_value, 
-    heading, 
+    label, 
     type, 
     items, 
     onUpdate, 
@@ -142,7 +150,7 @@ const ElementGroup = ({
             ref={forwardedRef.current[id]} 
             onFocus={focusHandler}
         >
-            <InputContainerHeading>{heading}</InputContainerHeading>
+            <InputContainerHeading>{label}</InputContainerHeading>
             { items.map( 
                 (item, index) =>
                     <InputGroupElementContainer key={`${id}-${index}`} >
@@ -162,7 +170,36 @@ const ElementGroup = ({
     )
 }
 
+const SelectElement = ({
+    id,
+    current_value,
+    label,
+    items,
+    forwardedRef,
+    onUpdate,
+    focusHandler
+} : ChoicedElementProps) : JSX.Element =>
+    <InputContainer>
+        <Label htmlFor={id}>{label}</Label>
+        <SelectInput
+            id={id}
+            tabIndex={0} 
+            ref={forwardedRef.current[id] as React.MutableRefObject<HTMLSelectElement>}
+            onChange={onUpdate}
+            onFocus={focusHandler}
+            value={current_value}
+        >
+            <option value="">Please Select an Option</option>
+            { 
+                items.map(( item : SurveyComponentItem, index : number ) => 
+                    <option key={`${id}-item-${index}`} value={item.value}>{item.label}</option>
+                )
+            } 
+        </SelectInput>
+    </InputContainer>
+
 export {
     ElementGroup,
-    InputElement
+    InputElement,
+    SelectElement
 }

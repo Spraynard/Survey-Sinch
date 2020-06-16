@@ -2,7 +2,7 @@ import React from "react";
 
 import { ISurveyComponent, IChoicedSurveyComponent } from "./interfaces";
 import { SurveyComponentType , SurveyComponentRefObject } from "./types";
-import { InputElement, ElementGroup } from "./SurveySinchInputComponents";
+import { InputElement, ElementGroup, SelectElement } from "./SurveySinchInputComponents";
 
 type Props = {
     component: ISurveyComponent | IChoicedSurveyComponent;
@@ -34,14 +34,20 @@ const SurveySinchFactory = ({ component, focusHandler, singleValueUpdateHandler,
                 id={component.id}
                 ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLTextAreaElement>}>{value}</textarea>
         case "select":
-            return <select
+            return <SelectElement 
                 id={component.id}
-                ref={forwardedRef.current[component.id] as React.MutableRefObject<HTMLSelectElement>}>{value}</select>
+                current_value={value as string}
+                label={component.label}
+                items={(component as IChoicedSurveyComponent).items}
+                forwardedRef={forwardedRef}
+                onUpdate={singleValueUpdateHandler}
+                focusHandler={focusHandler}
+            />
         case "radio":
             return <ElementGroup
                 id={component.id}
                 current_value={value as string}
-                heading={component.label}
+                label={component.label}
                 items={(component as IChoicedSurveyComponent).items}
                 forwardedRef={forwardedRef} 
                 type={type}
@@ -52,7 +58,7 @@ const SurveySinchFactory = ({ component, focusHandler, singleValueUpdateHandler,
             return <ElementGroup
                 id={component.id}
                 current_value={value as Array<string>}
-                heading={component.label}
+                label={component.label}
                 items={(component as IChoicedSurveyComponent).items}
                 forwardedRef={forwardedRef} 
                 type={type}
