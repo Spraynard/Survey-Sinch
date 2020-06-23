@@ -1,6 +1,8 @@
 # Survey Sinch
 
-React component that allows you to build a fully featured survey in a short amount of time.
+Highly reuseable react component to build a survey.
+
+Use the power of structured data that can be expressed through a JSON file!
 
 ## Installation 
 
