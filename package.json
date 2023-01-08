@@ -8,7 +8,7 @@
     "build": "parcel build index.html",
     "test": "jest"
   },
-  "author": "Kellan Martin",
+  "author": "Spraynard",
   "license": "MIT",
   "keywords": [
     "Survey",
